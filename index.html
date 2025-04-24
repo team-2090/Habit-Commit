@@ -53,6 +53,11 @@
             <div class="chart-placeholder"></div>
         </div>
 
+        <div style="margin-top: 30px;">
+            <div id="timer" style="font-size: 48px;">25:00</div>
+            <button id="start">Start Pomodoro</button>
+        </div>
+
         <div style="margin-top: 40px;">
             <h2>Pomodoro Timer</h2>
             <div id="timer" style="font-size: 40px; margin: 10px;">25:00</div>
@@ -63,44 +68,55 @@
 
         <script>
             let timer;
-            let isRunning = false;
-            let duration = 25 * 60; // 25分（秒）
+            let seconds = 25 * 60; // 25分
+            const display = document.getElementById('timer');
+            const startButton = document.getElementById('start');
 
             function updateTimerDisplay() {
-                const minutes = Math.floor(duration / 60).toString().padStart(2, '0');
-                const seconds = (duration % 60).toString().padStart(2, '0');
-                document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+                const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+                const secs = String(seconds % 60).padStart(2, '0');
+                display.textContent = `${mins}:${secs}`;
+            }
+
+            function growGrass() {
+                const today = new Date().getDate();
+                const allDays = document.querySelectorAll('.calendar .day');
+                allDays.forEach(day => {
+                    if (day.textContent === String(today)) {
+                        if (day.classList.contains('level-1')) {
+                            day.classList.remove('level-1');
+                            day.classList.add('level-2');
+                        } else if (day.classList.contains('level-2')) {
+                            day.classList.remove('level-2');
+                            day.classList.add('level-3');
+                        } else if (day.classList.contains('level-3')) {
+                            day.classList.remove('level-3');
+                            day.classList.add('level-4');
+                        } else if (!day.className.includes('level')) {
+                            day.classList.add('level-1');
+                        }
+                    }
+                });
             }
 
             function startTimer() {
-                if (isRunning) return;
-                isRunning = true;
+                if (timer) clearInterval(timer);
+                seconds = 25 * 60; // reset
+                updateTimerDisplay();
+
                 timer = setInterval(() => {
-                    if (duration > 0) {
-                        duration--;
-                        updateTimerDisplay();
-                    } else {
+                    seconds--;
+                    updateTimerDisplay();
+
+                    if (seconds <= 0) {
                         clearInterval(timer);
-                        alert("Time's up! Take a break ☕");
-                        isRunning = false;
+                        growGrass(); // ⬅️ ここで草を育てる！
+                        alert("お疲れ様！草が育ちました🌱");
                     }
                 }, 1000);
             }
 
-            function stopTimer() {
-                clearInterval(timer);
-                isRunning = false;
-            }
-
-            function resetTimer() {
-                clearInterval(timer);
-                duration = 25 * 60;
-                updateTimerDisplay();
-                isRunning = false;
-            }
-
-            // 初期表示
-            updateTimerDisplay();
+            startButton.addEventListener('click', startTimer);
         </script>
     </body>
 </html>
