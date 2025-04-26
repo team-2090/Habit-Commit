@@ -4,81 +4,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>Habit Commit</title>
-        <style>
-body {
-    background-color: #0d1117;
-    color: #c9d1d9;
-    font-family: Arial, sans-serif;
-    padding: 20px;
-}
-
-    h1 {
-        color: #8aff70;
-        text-align: center;
-    }
-
-    .calendar {
-        display: grid;
-        grid-template-columns: repeat(30, 12px); /* 30週分（例） */
-        grid-auto-rows: 12px;
-        gap: 3px;
-        justify-content: center;
-        margin-top: 20px;
-    }
-
-    .day {
-        width: 12px;
-        height: 12px;
-        background-color: #161b22;
-        border-radius: 2px;
-    }
-
-    .level-1 { background-color: #9be9a8; }
-    .level-2 { background-color: #40c463; }
-    .level-3 { background-color: #30a14e; }
-    .level-4 { background-color: #216e39; }
-
-    .tooltip {
-        position: relative;
-        display: inline-block;
-    }
-
-    .tooltip .tooltiptext {
-        visibility: hidden;
-        width: 120px;
-        background-color: #333;
-        color: #fff;
-        text-align: center;
-        border-radius: 6px;
-        padding: 5px;
-        position: absolute;
-        z-index: 1;
-        top: -35px;
-        left: 50%;
-        margin-left: -60px;
-        opacity: 0;
-        transition: opacity 0.3s;
-        font-size: 10px;
-    }
-
-    .tooltip:hover .tooltiptext {
-        visibility: visible;
-        opacity: 1;
-    }
-
-    .legend {
-        text-align: center;
-        margin-top: 10px;
-    }
-
-    .legend span {
-        display: inline-block;
-        width: 12px;
-        height: 12px;
-        margin: 0 2px;
-        border-radius: 2px;
-    }
-        </style>
+        <link rel="stylesheet" type="text/css" href="style.css"></>
     </head>
     <body>
 
@@ -127,6 +53,11 @@ body {
             <div class="chart-placeholder"></div>
         </div>
 
+        <div style="margin-top: 30px;">
+            <div id="timer" style="font-size: 48px;">25:00</div>
+            <button id="start">Start Pomodoro</button>
+        </div>
+
         <div style="margin-top: 40px;">
             <h2>Pomodoro Timer</h2>
             <div id="timer" style="font-size: 40px; margin: 10px;">25:00</div>
@@ -137,44 +68,55 @@ body {
 
         <script>
             let timer;
-            let isRunning = false;
-            let duration = 25 * 60; // 25分（秒）
+            let seconds = 25 * 60; // 25分
+            const display = document.getElementById('timer');
+            const startButton = document.getElementById('start');
 
             function updateTimerDisplay() {
-                const minutes = Math.floor(duration / 60).toString().padStart(2, '0');
-                const seconds = (duration % 60).toString().padStart(2, '0');
-                document.getElementById('timer').textContent = `${minutes}:${seconds}`;
+                const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+                const secs = String(seconds % 60).padStart(2, '0');
+                display.textContent = `${mins}:${secs}`;
+            }
+
+            function growGrass() {
+                const today = new Date().getDate();
+                const allDays = document.querySelectorAll('.calendar .day');
+                allDays.forEach(day => {
+                    if (day.textContent === String(today)) {
+                        if (day.classList.contains('level-1')) {
+                            day.classList.remove('level-1');
+                            day.classList.add('level-2');
+                        } else if (day.classList.contains('level-2')) {
+                            day.classList.remove('level-2');
+                            day.classList.add('level-3');
+                        } else if (day.classList.contains('level-3')) {
+                            day.classList.remove('level-3');
+                            day.classList.add('level-4');
+                        } else if (!day.className.includes('level')) {
+                            day.classList.add('level-1');
+                        }
+                    }
+                });
             }
 
             function startTimer() {
-                if (isRunning) return;
-                isRunning = true;
+                if (timer) clearInterval(timer);
+                seconds = 25 * 60; // reset
+                updateTimerDisplay();
+
                 timer = setInterval(() => {
-                    if (duration > 0) {
-                        duration--;
-                        updateTimerDisplay();
-                    } else {
+                    seconds--;
+                    updateTimerDisplay();
+
+                    if (seconds <= 0) {
                         clearInterval(timer);
-                        alert("Time's up! Take a break ☕");
-                        isRunning = false;
+                        growGrass(); // ⬅️ ここで草を育てる！
+                        alert("お疲れ様！草が育ちました🌱");
                     }
                 }, 1000);
             }
 
-            function stopTimer() {
-                clearInterval(timer);
-                isRunning = false;
-            }
-
-            function resetTimer() {
-                clearInterval(timer);
-                duration = 25 * 60;
-                updateTimerDisplay();
-                isRunning = false;
-            }
-
-            // 初期表示
-            updateTimerDisplay();
+            startButton.addEventListener('click', startTimer);
         </script>
     </body>
 </html>
