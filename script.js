@@ -3,20 +3,21 @@ let time = 25 * 60;
 let timerId;
 let isBreak = false;
 
-function startTimer() {
+function startTimer(minutes = 25) {
     clearInterval(timerId);
+    time = minutes * 60; // 指定された分を秒に変換
     timerId = setInterval(() => {
         time--;
-        const minutes = String(Math.floor(time / 60)).padStart(2, '0');
-        const seconds = String(time % 60).padStart(2, '0');
-        document.getElementById("timer").textContent = `${minutes}:${seconds}`;
+        const displayMinutes = String(Math.floor(time / 60)).padStart(2, '0');
+        const displaySeconds = String(time % 60).padStart(2, '0');
+        document.getElementById("timer").textContent = `${displayMinutes}:${displaySeconds}`;
 
         if (time === 0) {
             clearInterval(timerId);
             isBreak = !isBreak;
-            time = isBreak ? 5 * 60 : 25 * 60;
+            const nextTime = isBreak ? 5 : 25; // デフォルトは5分休憩と25分作業
             alert(isBreak ? "Break time! 🍵" : "Focus time! 💻");
-            startTimer();
+            startTimer(nextTime); // 次のタイマーを開始
         }
     }, 1000);
 }
